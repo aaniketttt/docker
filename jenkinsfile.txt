@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image using the Dockerfile in the repo
+                    sh 'docker build -t lab-assignment-7-image .'
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Stop and remove any existing container with the same name
+                    sh '''
+                    docker stop lab-assignment-7-container || true
+                    docker rm lab-assignment-7-container || true
+                    '''
+
+                    // Run the Docker container in daemon mode
+                    sh 'docker run -d --name lab-assignment-7-container lab-assignment-7-image'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Optional: Clean up unused Docker images and containers after each run
+            sh 'docker system prune -f'
+        }
+    }
+}
